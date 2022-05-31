@@ -6,9 +6,9 @@ A list of other publically available data sources is provided below.
 
 ## Data Source
 
-[Washington State Report Card](https://washingtonstatereportcard.ospi.k12.wa.us) and the [Education Research and Data Center](https://erdc.wa.gov) provides data dashboards that may be of use for EHA data analysis to explore potential indicators and available data variables.
+[Washington State Report Card](https://washingtonstatereportcard.ospi.k12.wa.us) and the [Education Research and Data Center](https://erdc.wa.gov) provide data dashboards that may be of use for EHA staff to explore potential indicators and available data variables.
 
-National education data sources from the [National Center for Education Statistics](https://nces.ed.gov/) and [Civil Rights Data Collection](https://ocrdata.ed.gov/?src=go) may also be of interest with collected school-level information not systemically collected by the state.
+National education data sources from the [National Center for Education Statistics](https://nces.ed.gov/) and [Civil Rights Data Collection](https://ocrdata.ed.gov/?src=go) may also be of interest that provide school-level data not systemically collected by the state.
 
 OSPI has a variety of raw data publicly available through [data.wa.gov](https://data.wa.gov). Provided below are links to potential data sources.
 All data is from the 2018-19 school year to match with our example's use 2015-2019 ACS data. See `/demographics/demographics_mapping_acs.R` for more details on our use of ACS.

@@ -1,4 +1,6 @@
-# EHA
+# Everett Housing Authority 
+
+*Author*: Katherine Chang (kachang@uw.edu) 
 
 This repository hosts all public-facing R code, data, and outputs generated for the Everett Housing Authority (EHA) during contracted work to assist in the development of a community of opportunity identification process.
 

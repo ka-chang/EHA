@@ -27,7 +27,7 @@
 ################################################################################
 
 ################################################################################
-# STEP 1: Load packages
+# STEP 1: Load Packages
 ################################################################################
 
 rm(list=ls())
@@ -49,19 +49,20 @@ options(tigris_use_cache = TRUE)
 # STEP 2: Load Data
 ################################################################################
 
-here::i_am("education_components.R")
+here::i_am("education_indicators.R")
 
 readRenviron("~/.Renviron")
 Sys.getenv("CENSUS_API_KEY")
-#census_api_key("####", overwrite=TRUE, install=TRUE) 
-#Uncomment line 52 and update #### with unique key
-#Obtain Census key at: https://api.census.gov/data/key_signup.html
+# census_api_key("####", overwrite=TRUE, install=TRUE) 
+# Uncomment line 56 and update #### with unique key
+# Obtain Census key at: https://api.census.gov/data/key_signup.html
 
 #### Education Data
 # Data currently hosted on Github has been pre-processed to filter to Snohomish County
 # The following file further filters down to the City of Everett, but the loaded
 # code is sufficient to conduct similar analysis and mapping to Snohomish County
 # boundaries. 
+# Data can be found in `./education/data/*`
 
 assessment <- read_csv("./data/assessment_snohomish_2018_2019.csv")
 attendance <- read_csv("./data/attendance_snohomish_2018_2019.csv")
@@ -79,8 +80,8 @@ esd_assessment <- assessment%>%
   filter(StudentGroupType == "All")%>%
   filter(GradeLevel == "All Grades")%>%
   filter(`Test Administration (group)` == "General")%>%
-#Filtered to general test administration
-#due to suppression rules for smaller alternative student groups
+# Filtered to general test administration
+# due to suppression rules for smaller alternative student groups
   select(SchoolCode, SchoolName, TestSubject, PercentMetStandard)
 
 esd_assessment_wide <- esd_assessment%>%
@@ -127,7 +128,7 @@ ed_qual_merge <- ed_qual_list %>%
          -Science, -DisciplineRate,
          -TeacherPercent)
          
-#write_csv(ed_qual_merge, "education.csv")
+# write_csv(ed_qual_merge, "./outputs/education.csv")
 
 ################################################################################
 # STEP 4: Descriptive Analysis
@@ -153,8 +154,7 @@ dev.off()
 # provide similar information as just math test scores.
 
 # Additionally, there are moderate to high correlation values for 
-# discipline rates and all other indicators on the list. Just as we previously
-# cautioned 
+# discipline rates and all other indicators on the list. 
 
 ed_qual_merge%>%
   ggplot(aes(x=ela_pct)) +
@@ -201,7 +201,6 @@ ed_qual_merge%>%
 ggsave("./outputs/edu_descriptive_discipline.png",
        plot = last_plot(), bg = "#FFFFFF", dpi = 300)
 
-
 ed_qual_merge%>%
   ggplot(aes(x=teacher_exp_pct)) +
   geom_histogram(bins=20, color="black", fill="gray")+
@@ -216,8 +215,6 @@ ed_qual_merge%>%
 
 ggsave("./outputs/edu_descriptive_teacher_exp.png",
        plot = last_plot(), bg = "#FFFFFF", dpi = 300)
-
-
 
 ################################################################################
 # STEP 5: Create Base Map 
@@ -242,7 +239,7 @@ ed_qual_address <- full_join(ed_qual_merge, esd_school_address,
                              by = c("SchoolCode" = "SchoolCode"), 
                              copy=TRUE) 
 
-#### ACS MAP
+# ACS MAP
 
 df_var<- load_variables(2019, "acs5", cache = TRUE)
 
@@ -290,18 +287,11 @@ everett_base <- ggplot(everett_block) +
 
 # The following lines export cleaned data and shapefiles to work with ArcGIS
 
-# st_write(everett_block, "acs_2019_block_group.shp")
-# st_write(ed_qual_address, "ed_qual.shp")
+# st_write(everett_block, "./outputs/acs_2019_block_group.shp")
+# st_write(ed_qual_address, "./outputs/ed_qual.shp")
 
 ################################################################################
 # STEP 6: Map School Indicators Over Base Map 
-
-# This analysis uses Census Block Groups due to the smallest Census unit available
-# EHA has indicated they are interested in Census Tracts, but the analysis
-# focuses on Census Block Groups to provide granularity. Aggregation back to
-# Census Tracts is easily adaptable from this code. Update "everett_base" plot
-# to the level of Census Tracts instead of Census Block Groups (commented section
-# provided above in Step 5)
 ################################################################################
 
 # Everett Public School Locations
@@ -328,10 +318,8 @@ everett_base+
 ggsave("./outputs/edu_eps_address.png",
        plot = last_plot(), bg = "#FFFFFF", dpi = 300)
 
-
 # English Language Arts Proficiency 
 ################################################################################
-
 
 ed_qual_address$ela_pct_fct<- 
   cut(ed_qual_address$ela_pct, 
@@ -349,7 +337,6 @@ everett_base +
              )+
   labs(color="ELA Proficiency") +
   theme(legend.position = c(0.2, 0.8))
-  
 
 ggsave("./outputs/edu_eps_ela.png",
        plot = last_plot(), 
@@ -445,9 +432,9 @@ ggsave("./outputs/edu_eps_teacher_exp.png",
 
 # Crucially, a school's location in a census block group or census tract does not
 # indicate education opportunity uniformly across the entire census unit. School
-# enrollment zones will need to isolate 
+# enrollment zone data will be needed to identify which residential addresses within
+# a census tract or census block group falls within a school's enrollment zone.
 ################################################################################
-
 
 census_info <-   cxy_geography(
   ed_qual_address$Longitude[1],

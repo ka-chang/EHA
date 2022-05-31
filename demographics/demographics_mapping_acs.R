@@ -3,12 +3,9 @@
 # Author: Katherine Chang
 # Date: Winter/Spring 2022
 
-# Purpose: The following code is intended to provide an illustrative example for
-# EHA's implementation of Communities of Opportunity initiative.
-# This file walks through a single neighborhood characteristic consideration:
-# education. The file includes code for data processing  and mapping to help drive
-# EHA internal decision-making on what subcomponents meaningfully make up 
-# education opportunity within a neighborhood.
+# Purpose: The following code generates city racial demographic maps for Everett
+# using the U.S. Census Bureau's American Community Survey 5-Year Estimates
+# for 2015-2019.
 
 ################################################################################
 
@@ -20,7 +17,6 @@ rm(list=ls())
 
 library(ggpubr)
 library(here)
-library(jsonlite)
 library(leaflet)
 library(sf)
 library(tidycensus)
@@ -31,11 +27,11 @@ options(tigris_use_cache = TRUE)
 
 readRenviron("~/.Renviron")
 Sys.getenv("CENSUS_API_KEY")
-#census_api_key("####", overwrite=TRUE, install=TRUE) 
-#Uncomment line 34 and update #### with unique key
-#Get key at: https://api.census.gov/data/key_signup.html
+# census_api_key("####", overwrite=TRUE, install=TRUE) 
+# Uncomment line 30 and update #### with unique key
+# Get key at: https://api.census.gov/data/key_signup.html
 
-here::i_am("acs.R")
+here::i_am("./demographics_mapping_acs.R")
 
 ################################################################################
 # STEP 2: Load and Select ACS 2014-2019 ACS Data Variables List 
@@ -60,11 +56,13 @@ var_selection <- c(
   rental_units = "B25008_003"
 )
 
+# If adding new variables in var_selection, adjust variable selection in Step 4.
+
 ################################################################################
 # STEP 3: Load Variables of Interest
 ################################################################################
 
-#Geography level, ~35 census tracts in Everett vs 501 census block groups
+# Geography level, 35 census tracts in Everett vs 95 census block groups
 df_raw_block <- get_acs("block group",
                         variables = var_selection,
                         year=2019,
@@ -78,8 +76,10 @@ df_raw_block <- get_acs("block group",
 # STEP 4: Reshape Data for Mapping
 ################################################################################
 
-#Problem w/ tidyr::pivot_wider with geometry, 
-#A solution involves using gather.sf but I just called two ACS tables (one w/ geometry and one w/out) and joined by GEOID
+# Problem w/ tidyr::pivot_wider with geometry, 
+# A solution can use gather.sf but I just called two ACS tables 
+# (one w/ geometry and one w/out) and joined by GEOID
+
 df_raw_block_wide <- df_raw_block %>% 
   pivot_wider(names_from = variable, 
               values_from = estimate)
@@ -114,19 +114,14 @@ df_block_sf <- df_block %>%
     )%>%
   st_as_sf() #convert to sf
 
-
-
 ################################################################################
 # STEP 5: Filter Map Down to Everett
 ################################################################################
 
-# load places in Washington
 wa <- places("WA", year = 2019, class = "sf")
-# Get the water bodies of King County
 sno_water <- area_water("WA", "Snohomish", class = "sf") 
 sno_water_union <- st_union(sno_water) #This line of code takes a while
 
-# filter to Everett
 everett <- 
   wa %>%
   filter(NAME == "Everett")
@@ -137,19 +132,18 @@ ggplot(everett) +
 
 everett_block <- 
   df_block_sf %>%
-  # cut the outline of Everett
   st_intersection(everett)%>%
-  # remove water areas from the map
   st_difference(sno_water_union) 
 
-#Remove sections outside main city boundaries
+# Remove block groups outside main city boundaries
 
 everett_block <- everett_block%>%
   filter(GEOID != "530610522071")%>%
   filter(GEOID != "530610536023")%>%
   filter(GEOID != "530610538034")
 
-#Base plot 
+# Base plot 
+
 ggplot(everett_block) + 
   geom_sf(fill = "white") + 
   theme_minimal() 
@@ -239,10 +233,9 @@ everett_block %>%
 ggsave( "./outputs/demo_white_pct.png",
         plot = last_plot(), bg = "#FFFFFF", dpi = 300)
 
-
 ################################################################################
 # OPTIONAL: Write Data to ESRI Shapefile to Work With ArcMap
 ################################################################################
 
-# st_write(everett_block, "acs_2019_block_group.shp")
+# st_write(everett_block, "./outputs/acs_2019_block_group.shp")
 

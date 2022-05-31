@@ -1,6 +1,6 @@
 ################################################################################
 # Policy Consultant Code for Everett Housing Authority (EHA)
-# Author: Katherine Chang
+# Author: Katherine Chang (kachang@uw.edu)
 # Date: Winter/Spring 2022
 
 # Purpose: The following code generates city racial demographic maps for Everett
